@@ -14,7 +14,6 @@
         padding: 0;
         box-sizing: border-box;
       }
-
       body {
         min-height: 100vh;
         min-height: 100dvh;
@@ -26,7 +25,6 @@
         font-family: "Poiret One", cursive;
         overflow: hidden;
       }
-
       .stars {
         position: fixed;
         inset: 0;
@@ -76,6 +74,21 @@
           opacity: 1;
           transform: translate(-50%, -50%) scale(1.06);
         }
+      }
+
+      /* Page fade overlay */
+      .fade-overlay {
+        position: fixed;
+        inset: 0;
+        background: #0d0a0f;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 100;
+        transition: opacity 0.8s ease;
+      }
+      .fade-overlay.active {
+        opacity: 1;
+        pointer-events: all;
       }
 
       .petal {
@@ -138,7 +151,6 @@
         cursor: pointer;
         position: relative;
       }
-
       .card-inner {
         width: 100%;
         height: 100%;
@@ -146,12 +158,10 @@
         transform-style: preserve-3d;
         transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
       }
-
       .card-scene:hover .card-inner,
       .card-scene.open .card-inner {
         transform: rotateY(180deg);
       }
-
       .card-front,
       .card-back {
         position: absolute;
@@ -224,7 +234,7 @@
         text-align: center;
       }
 
-      /* pulse rings around the card */
+      /* Pulse rings */
       .ring {
         position: absolute;
         inset: -14px;
@@ -273,13 +283,30 @@
         background: none;
         font-family: "Cormorant Garamond", Georgia, serif;
         transition: color 0.3s;
+        padding: 8px 16px;
       }
       .back-link:hover {
         color: rgba(220, 80, 110, 0.7);
       }
+
+      /* Back-link exit: fade out, slide left */
+      .page-wrap.leaving {
+        animation: pageLeave 0.7s ease forwards !important;
+      }
+      @keyframes pageLeave {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(0.92) translateY(20px);
+        }
+      }
     </style>
   </head>
   <body>
+    <div class="fade-overlay" id="fadeOverlay"></div>
     <div class="stars" id="stars"></div>
 
     <div
@@ -338,13 +365,12 @@
       ♥
     </div>
 
-    <div class="page-wrap">
+    <div class="page-wrap" id="pageWrap">
       <p class="title">✦ &nbsp; for you &nbsp; ✦</p>
 
       <div class="card-scene" id="cardScene" onclick="toggleCard()">
         <div class="ring"></div>
         <div class="ring"></div>
-
         <div class="card-inner">
           <!-- FRONT: closed heart -->
           <div class="card-front">
@@ -359,8 +385,7 @@
               />
             </svg>
           </div>
-
-          <!-- BACK: message revealed -->
+          <!-- BACK: message -->
           <div class="card-back">
             <div class="msg-heart">♥</div>
             <h2></h2>
@@ -370,13 +395,7 @@
       </div>
 
       <p class="hint" id="hintText">hover · tap to open</p>
-      <button
-        class="back-link"
-        onclick="
-          event.stopPropagation();
-          window.location.href = 'letter.html';
-        "
-      >
+      <button class="back-link" id="backBtn" onclick="goBack(event)">
         ← back to the letter
       </button>
     </div>
@@ -398,6 +417,21 @@
         document.getElementById("hintText").textContent = isOpen
           ? "tap to close"
           : "hover · tap to open";
+      }
+
+      let leaving = false;
+      function goBack(e) {
+        e.stopPropagation();
+        if (leaving) return;
+        leaving = true;
+        const wrap = document.getElementById("pageWrap");
+        const overlay = document.getElementById("fadeOverlay");
+        // Page scales down and fades
+        wrap.classList.add("leaving");
+        setTimeout(() => overlay.classList.add("active"), 350);
+        setTimeout(() => {
+          window.location.href = "letter.html";
+        }, 900);
       }
     </script>
   </body>
