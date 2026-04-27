@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Valentine's Day Card</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poiret+One&family=Cormorant+Garamond:ital,wght@0,300;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #0d0a0f;
+        font-family: "Poiret One", cursive;
+        overflow: hidden;
+      }
+
+      .stars {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+      .star {
+        position: absolute;
+        border-radius: 50%;
+        background: #fff;
+        opacity: 0;
+        animation: twinkle linear infinite;
+      }
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        width: min(700px, 120vw);
+        height: min(700px, 120vw);
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(180, 30, 60, 0.12) 0%,
+          transparent 70%
+        );
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        animation: breathe 4s ease-in-out infinite;
+      }
+      @keyframes breathe {
+        0%,
+        100% {
+          opacity: 0.7;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.06);
+        }
+      }
+
+      .petal {
+        position: fixed;
+        pointer-events: none;
+        opacity: 0;
+        color: #e8304e;
+        animation: drift linear infinite;
+      }
+      @keyframes drift {
+        0% {
+          opacity: 0;
+          transform: translateY(-10px) rotate(0deg);
+        }
+        10% {
+          opacity: 0.6;
+        }
+        90% {
+          opacity: 0.1;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(100vh) rotate(360deg) translateX(30px);
+        }
+      }
+
+      .page-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+        opacity: 0;
+        animation: pageIn 1s ease forwards 0.3s;
+      }
+      @keyframes pageIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .title {
+        font-size: clamp(12px, 3vw, 16px);
+        letter-spacing: 0.4em;
+        color: rgba(220, 140, 160, 0.5);
+        text-transform: uppercase;
+        margin-bottom: 32px;
+        text-align: center;
+      }
+
+      /* ── CARD FLIP ── */
+      .card-scene {
+        width: clamp(200px, 55vw, 300px);
+        height: clamp(200px, 55vw, 300px);
+        perspective: 900px;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .card-inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .card-scene:hover .card-inner,
+      .card-scene.open .card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .card-front,
+      .card-back {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* FRONT */
+      .card-front {
+        background: transparent;
+      }
+      .card-front svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 0 22px rgba(200, 30, 60, 0.55))
+          drop-shadow(0 0 50px rgba(180, 10, 40, 0.25));
+        animation: hb 1.7s ease-in-out infinite;
+      }
+      @keyframes hb {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        14% {
+          transform: scale(1.1);
+        }
+        28% {
+          transform: scale(1);
+        }
+        42% {
+          transform: scale(1.07);
+        }
+      }
+
+      /* BACK */
+      .card-back {
+        transform: rotateY(180deg);
+        background: #1a0810;
+        border: 1px solid rgba(200, 50, 80, 0.25);
+        border-radius: 10px;
+        gap: 12px;
+        padding: 24px 20px;
+      }
+      .card-back .msg-heart {
+        font-size: clamp(24px, 7vw, 38px);
+        color: #c8203c;
+        animation: hb 1.7s ease-in-out infinite;
+        line-height: 1;
+      }
+      .card-back h2 {
+        font-family: "Poiret One", cursive;
+        font-size: clamp(14px, 4vw, 20px);
+        color: rgba(255, 200, 215, 0.92);
+        letter-spacing: 0.08em;
+        text-align: center;
+        line-height: 1.5;
+        font-weight: 400;
+      }
+      .card-back .sub {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-style: italic;
+        font-size: clamp(11px, 3vw, 14px);
+        color: rgba(220, 120, 145, 0.6);
+        letter-spacing: 0.1em;
+        text-align: center;
+      }
+
+      /* pulse rings around the card */
+      .ring {
+        position: absolute;
+        inset: -14px;
+        border-radius: 50%;
+        border: 1px solid rgba(200, 40, 70, 0.22);
+        animation: ringPulse 1.7s ease-out infinite;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .ring:nth-child(2) {
+        animation-delay: 0.25s;
+        border-color: rgba(200, 40, 70, 0.1);
+      }
+      @keyframes ringPulse {
+        0% {
+          transform: scale(0.85);
+          opacity: 0;
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1.55);
+          opacity: 0;
+        }
+      }
+
+      .hint {
+        margin-top: 28px;
+        font-size: clamp(10px, 2.5vw, 12px);
+        letter-spacing: 0.35em;
+        color: rgba(220, 140, 160, 0.38);
+        text-transform: uppercase;
+        text-align: center;
+        font-family: "Cormorant Garamond", Georgia, serif;
+      }
+
+      .back-link {
+        margin-top: 12px;
+        font-size: 11px;
+        letter-spacing: 0.3em;
+        color: rgba(200, 100, 120, 0.3);
+        text-transform: uppercase;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        transition: color 0.3s;
+      }
+      .back-link:hover {
+        color: rgba(220, 80, 110, 0.7);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars" id="stars"></div>
+
+    <div
+      class="petal"
+      style="
+        left: 8%;
+        animation-duration: 10s;
+        animation-delay: 1s;
+        font-size: 9px;
+      "
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="
+        left: 22%;
+        animation-duration: 14s;
+        animation-delay: 4s;
+        font-size: 6px;
+      "
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="
+        left: 40%;
+        animation-duration: 9s;
+        animation-delay: 7s;
+        font-size: 11px;
+      "
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="
+        left: 62%;
+        animation-duration: 12s;
+        animation-delay: 2s;
+        font-size: 7px;
+      "
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="
+        left: 80%;
+        animation-duration: 11s;
+        animation-delay: 9s;
+        font-size: 8px;
+      "
+    >
+      ♥
+    </div>
+
+    <div class="page-wrap">
+      <p class="title">✦ &nbsp; for you &nbsp; ✦</p>
+
+      <div class="card-scene" id="cardScene" onclick="toggleCard()">
+        <div class="ring"></div>
+        <div class="ring"></div>
+
+        <div class="card-inner">
+          <!-- FRONT: closed heart -->
+          <div class="card-front">
+            <svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M50 85 C50 85 5 55 5 28 C5 14 16 5 28 5 C37 5 45 10 50 18 C55 10 63 5 72 5 C84 5 95 14 95 28 C95 55 50 85 50 85Z"
+                fill="#c8203c"
+              />
+              <path
+                d="M22 14 C26 10 33 9 38 13 C34 9 27 8 22 14Z"
+                fill="rgba(255,255,255,0.15)"
+              />
+            </svg>
+          </div>
+
+          <!-- BACK: message revealed -->
+          <div class="card-back">
+            <div class="msg-heart">♥</div>
+            <h2></h2>
+            <p class="sub">with all my heart</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint" id="hintText">hover · tap to open</p>
+      <button
+        class="back-link"
+        onclick="
+          event.stopPropagation();
+          window.location.href = 'letter.html';
+        "
+      >
+        ← back to the letter
+      </button>
+    </div>
+
+    <script>
+      const starsEl = document.getElementById("stars");
+      for (let i = 0; i < 80; i++) {
+        const s = document.createElement("div");
+        s.className = "star";
+        const sz = Math.random() * 2 + 0.8;
+        s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random() * 100}%;left:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 5}s;animation-delay:${Math.random() * 6}s`;
+        starsEl.appendChild(s);
+      }
+
+      let isOpen = false;
+      function toggleCard() {
+        isOpen = !isOpen;
+        document.getElementById("cardScene").classList.toggle("open", isOpen);
+        document.getElementById("hintText").textContent = isOpen
+          ? "tap to close"
+          : "hover · tap to open";
+      }
+    </script>
+  </body>
+</html>

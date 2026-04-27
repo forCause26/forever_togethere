@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Letter For You</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital@1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #0d0a0f;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Stars */
+      .stars {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+      .star {
+        position: absolute;
+        border-radius: 50%;
+        background: #fff;
+        opacity: 0;
+        animation: twinkle linear infinite;
+      }
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* Ambient glow */
+      body::before {
+        content: "";
+        position: fixed;
+        width: min(700px, 120vw);
+        height: min(700px, 120vw);
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(180, 30, 60, 0.1) 0%,
+          transparent 70%
+        );
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        animation: ambientBreath 4s ease-in-out infinite;
+      }
+      @keyframes ambientBreath {
+        0%,
+        100% {
+          opacity: 0.6;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.06);
+        }
+      }
+
+      /* ── ENVELOPE ── */
+      .envelope-scene {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .envelope-wrap {
+        position: relative;
+        width: clamp(220px, 60vw, 320px);
+        cursor: pointer;
+        opacity: 0;
+        animation: envAppear 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.5s;
+      }
+      @keyframes envAppear {
+        from {
+          opacity: 0;
+          transform: translateY(30px) scale(0.85);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .envelope-wrap.opening .flap {
+        animation: flapOpen 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        transform-origin: top center;
+      }
+      @keyframes flapOpen {
+        0% {
+          transform: rotateX(0deg);
+        }
+        100% {
+          transform: rotateX(-180deg);
+        }
+      }
+
+      .envelope-wrap.opening .letter-pull {
+        animation: letterPull 0.9s cubic-bezier(0.34, 1.2, 0.64, 1) forwards
+          0.4s;
+      }
+      @keyframes letterPull {
+        0% {
+          transform: translateY(0);
+          opacity: 0.6;
+        }
+        100% {
+          transform: translateY(-80px);
+          opacity: 1;
+        }
+      }
+
+      .envelope-svg {
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 8px 32px rgba(200, 30, 60, 0.18));
+        transition: filter 0.3s ease;
+      }
+      .envelope-wrap:hover .envelope-svg {
+        filter: drop-shadow(0 12px 40px rgba(220, 50, 80, 0.3));
+      }
+
+      .letter-pull {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 72%;
+        height: 60%;
+        z-index: -1;
+        opacity: 0;
+      }
+      .letter-pull rect {
+        fill: #fdf5f7;
+        rx: 2;
+      }
+
+      /* hint text */
+      .open-hint {
+        margin-top: clamp(14px, 4vw, 22px);
+        font-size: clamp(10px, 2.8vw, 12px);
+        letter-spacing: 0.35em;
+        color: rgba(220, 140, 160, 0.5);
+        text-transform: uppercase;
+        opacity: 0;
+        animation: fadeUp 1s ease forwards 1.3s;
+        text-align: center;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── LETTER PAGE ── */
+      .letter-page {
+        display: none;
+        position: fixed;
+        inset: 0;
+        justify-content: center;
+        align-items: center;
+        z-index: 20;
+        overflow-y: auto;
+        padding: 24px 16px;
+      }
+      .letter-page.show {
+        display: flex;
+        animation: pageIn 0.8s ease forwards;
+      }
+      @keyframes pageIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .paper {
+        margin-top: 100px;
+        background: #fdf5f7;
+        border-radius: 2px;
+        width: 100%;
+        max-width: 360px;
+        padding: 22px 20px 28px;
+        position: relative;
+        box-shadow:
+          0 2px 0 #e8c0cc,
+          0 4px 0 rgba(200, 80, 110, 0.12),
+          0 20px 60px rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        transform: translateY(40px) rotate(-0.5deg);
+        animation: paperReveal 1s cubic-bezier(0.34, 1.1, 0.64, 1) forwards 0.2s;
+      }
+      @keyframes paperReveal {
+        to {
+          opacity: 1;
+          transform: translateY(0) rotate(-0.5deg);
+        }
+      }
+
+      /* Aged paper lines */
+      .paper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          transparent,
+          transparent 27px,
+          rgba(200, 100, 120, 0.08) 28px
+        );
+        border-radius: 2px;
+        pointer-events: none;
+      }
+
+      /* Red margin line */
+      .paper::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: clamp(38px, 10vw, 52px);
+        width: 1px;
+        background: rgba(200, 50, 80, 0.2);
+        pointer-events: none;
+      }
+
+      .letter-date {
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        color: rgba(160, 60, 80, 0.55);
+        text-transform: uppercase;
+        margin-bottom: 14px;
+        text-align: right;
+        opacity: 0;
+        animation: lineIn 0.6s ease forwards 0.5s;
+      }
+
+      .letter-salutation {
+        font-family: "Playfair Display", Georgia, serif;
+        font-style: italic;
+        font-size: 16px;
+        color: #7a1830;
+        margin-bottom: 12px;
+        opacity: 0;
+        animation: lineIn 0.6s ease forwards 0.7s;
+      }
+
+      .letter-body p {
+        font-size: 11px;
+        line-height: 1.85;
+        color: #3a1520;
+        font-weight: 300;
+        margin-bottom: 10px;
+        opacity: 0;
+      }
+      .letter-body p:nth-child(1) {
+        animation: lineIn 0.6s ease forwards 0.9s;
+      }
+      .letter-body p:nth-child(2) {
+        animation: lineIn 0.6s ease forwards 1.1s;
+      }
+      .letter-body p:nth-child(3) {
+        animation: lineIn 0.6s ease forwards 1.3s;
+      }
+      .letter-body p:nth-child(4) {
+        animation: lineIn 0.6s ease forwards 1.5s;
+      }
+
+      @keyframes lineIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .letter-closing {
+        margin-top: 16px;
+        text-align: right;
+      }
+      .letter-closing .close-word {
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        color: rgba(120, 40, 60, 0.6);
+        text-transform: uppercase;
+        display: block;
+        opacity: 0;
+        animation: lineIn 0.6s ease forwards 1.7s;
+      }
+      .letter-closing .signature {
+        font-family: "Playfair Display", Georgia, serif;
+        font-style: italic;
+        font-size: 20px;
+        color: #7a1830;
+        display: block;
+        margin-top: 2px;
+        opacity: 0;
+        animation: signatureIn 1s ease forwards 1.9s;
+      }
+      @keyframes signatureIn {
+        from {
+          opacity: 0;
+          transform: translateX(10px) rotate(2deg);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0) rotate(0deg);
+        }
+      }
+
+      /* Wax seal */
+      .wax-seal {
+        position: absolute;
+        bottom: clamp(-18px, -5vw, -22px);
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        animation: sealIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 2.2s;
+      }
+      @keyframes sealIn {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) scale(0.3);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) scale(1);
+        }
+      }
+
+      /* Floating petals */
+      .petal {
+        position: fixed;
+        pointer-events: none;
+        opacity: 0;
+        color: #e8304e;
+        font-size: clamp(8px, 2vw, 12px);
+        animation: petalDrift linear infinite;
+      }
+      @keyframes petalDrift {
+        0% {
+          opacity: 0;
+          transform: translateY(-10px) rotate(0deg);
+        }
+        10% {
+          opacity: 0.7;
+        }
+        90% {
+          opacity: 0.2;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(100vh) rotate(360deg) translateX(40px);
+        }
+      }
+
+      /* Read again button */
+      .read-again {
+        margin-top: clamp(32px, 8vw, 52px);
+        font-size: clamp(10px, 2.8vw, 12px);
+        letter-spacing: 0.35em;
+        color: rgba(220, 140, 160, 0.45);
+        text-transform: uppercase;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        opacity: 0;
+        animation: fadeUp 0.8s ease forwards 2.6s;
+        transition: color 0.3s ease;
+        padding: 8px 16px;
+      }
+      .read-again:hover {
+        color: rgba(220, 80, 110, 0.8);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars" id="stars"></div>
+
+    <!-- Floating petals -->
+    <div
+      class="petal"
+      style="left: 10%; animation-duration: 9s; animation-delay: 3s"
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="
+        left: 25%;
+        animation-duration: 12s;
+        animation-delay: 5s;
+        font-size: 7px;
+      "
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="left: 42%; animation-duration: 8s; animation-delay: 7s"
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="
+        left: 60%;
+        animation-duration: 11s;
+        animation-delay: 4s;
+        font-size: 10px;
+      "
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="
+        left: 75%;
+        animation-duration: 10s;
+        animation-delay: 9s;
+        font-size: 7px;
+      "
+    >
+      ♥
+    </div>
+    <div
+      class="petal"
+      style="left: 88%; animation-duration: 13s; animation-delay: 2s"
+    >
+      ♥
+    </div>
+
+    <!-- Envelope scene -->
+    <div class="envelope-scene" id="envScene">
+      <div class="envelope-wrap" id="envWrap" onclick="openEnvelope()">
+        <!-- Letter peeking out -->
+        <div class="letter-pull">
+          <svg
+            viewBox="0 0 100 60"
+            xmlns="http://www.w3.org/2000/svg"
+            style="width: 100%; height: 100%"
+          >
+            <rect x="0" y="0" width="100" height="60" rx="1" fill="#fdf5f7" />
+            <line
+              x1="15"
+              y1="12"
+              x2="85"
+              y2="12"
+              stroke="rgba(180,60,80,0.15)"
+              stroke-width="1"
+            />
+            <line
+              x1="15"
+              y1="20"
+              x2="85"
+              y2="20"
+              stroke="rgba(180,60,80,0.15)"
+              stroke-width="1"
+            />
+            <line
+              x1="15"
+              y1="28"
+              x2="70"
+              y2="28"
+              stroke="rgba(180,60,80,0.15)"
+              stroke-width="1"
+            />
+          </svg>
+        </div>
+
+        <!-- Envelope SVG -->
+        <svg
+          class="envelope-svg"
+          viewBox="0 0 320 220"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <!-- Body -->
+          <rect
+            x="4"
+            y="60"
+            width="312"
+            height="156"
+            rx="4"
+            fill="#fdf0f4"
+            stroke="#e8a0b4"
+            stroke-width="1.2"
+          />
+
+          <!-- Flap (top triangle) — animated separately -->
+          <g
+            class="flap"
+            style="transform-origin: 160px 60px; transform-box: fill-box"
+          >
+            <path
+              d="M4 60 L160 150 L316 60 L4 60Z"
+              fill="#fae0e8"
+              stroke="#e8a0b4"
+              stroke-width="1.2"
+              stroke-linejoin="round"
+            />
+          </g>
+
+          <!-- Bottom fold lines -->
+          <path
+            d="M4 216 L130 130"
+            stroke="#e8a0b4"
+            stroke-width="0.8"
+            fill="none"
+            opacity="0.6"
+          />
+          <path
+            d="M316 216 L190 130"
+            stroke="#e8a0b4"
+            stroke-width="0.8"
+            fill="none"
+            opacity="0.6"
+          />
+
+          <!-- Inner V crease -->
+          <path
+            d="M4 60 L160 152 L316 60"
+            stroke="#d490a8"
+            stroke-width="0.6"
+            fill="none"
+            opacity="0.4"
+          />
+
+          <!-- Wax seal placeholder on flap -->
+          <circle cx="160" cy="110" r="18" fill="#c8203c" opacity="0.85" />
+          <circle
+            cx="160"
+            cy="110"
+            r="14"
+            fill="none"
+            stroke="rgba(255,255,255,0.2)"
+            stroke-width="1"
+          />
+          <text
+            x="160"
+            y="114.5"
+            text-anchor="middle"
+            font-size="13"
+            fill="rgba(255,255,255,0.9)"
+            font-family="serif"
+          >
+            ♥
+          </text>
+        </svg>
+      </div>
+
+      <p class="open-hint">✦ tap to open ✦</p>
+    </div>
+
+    <!-- Letter page (hidden until envelope opened) -->
+    <div class="letter-page" id="letterPage">
+      <div
+        style="
+          width: 100%;
+          max-width: 360px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        "
+      >
+        <div class="paper">
+          <p class="letter-date">this moment, always</p>
+
+          <p class="letter-salutation">My dearest,</p>
+
+          <div class="letter-body">
+            <p>
+              I used to believe that some people simply pass through life beside
+              each other — like stars that share a sky but never touch. Then I
+              found you, and everything I thought I knew about distance quietly
+              dissolved.
+            </p>
+            <p>
+              I remember the exact moment. The way the world seemed to hold its
+              breath. How ordinary everything was, and then — how it wasn't. You
+              were there, and I understood, without any ceremony at all, that
+              this was the beginning of something I had no word for yet.
+            </p>
+          </div>
+
+          <div class="letter-closing">
+            <span class="close-word">forever yours</span>
+            <span class="signature">— always</span>
+          </div>
+
+          <!-- Wax seal at bottom — clickable -->
+          <div
+            class="wax-seal"
+            onclick="window.location.href = 'message.html'"
+            style="cursor: pointer"
+            title="Open the card"
+          >
+            <svg
+              viewBox="0 0 52 52"
+              width="52"
+              height="52"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="26" cy="26" r="24" fill="#c8203c" />
+              <circle
+                cx="26"
+                cy="26"
+                r="20"
+                fill="none"
+                stroke="rgba(255,255,255,0.18)"
+                stroke-width="1.2"
+              />
+              <circle
+                cx="26"
+                cy="26"
+                r="15"
+                fill="none"
+                stroke="rgba(255,255,255,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="26"
+                y="30"
+                text-anchor="middle"
+                font-size="16"
+                fill="rgba(255,255,255,0.9)"
+                font-family="serif"
+              >
+                ♥
+              </text>
+            </svg>
+          </div>
+        </div>
+
+        <button class="read-again" onclick="readAgain()">✦ read again ✦</button>
+      </div>
+    </div>
+
+    <script>
+      // Stars
+      const starsEl = document.getElementById("stars");
+      for (let i = 0; i < 80; i++) {
+        const s = document.createElement("div");
+        s.className = "star";
+        const size = Math.random() * 2 + 0.8;
+        s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random() * 100}%;left:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 5}s;animation-delay:${Math.random() * 6}s`;
+        starsEl.appendChild(s);
+      }
+
+      function openEnvelope() {
+        const wrap = document.getElementById("envWrap");
+        if (wrap.classList.contains("opening")) return;
+        wrap.classList.add("opening");
+
+        setTimeout(() => {
+          document.getElementById("envScene").style.display = "none";
+          const lp = document.getElementById("letterPage");
+          lp.classList.add("show");
+        }, 900);
+      }
+
+      function readAgain() {
+        const lp = document.getElementById("letterPage");
+        lp.classList.remove("show");
+        lp.style.display = "none";
+
+        const wrap = document.getElementById("envWrap");
+        wrap.classList.remove("opening");
+
+        const scene = document.getElementById("envScene");
+        scene.style.display = "flex";
+
+        // Reset animations
+        void wrap.offsetWidth;
+        wrap.style.animation = "none";
+        wrap.style.opacity = "1";
+
+        setTimeout(() => {
+          lp.style.display = "";
+        }, 100);
+      }
+    </script>
+  </body>
+</html>
