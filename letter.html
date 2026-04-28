@@ -14,21 +14,26 @@
         padding: 0;
         box-sizing: border-box;
       }
+
       body {
         min-height: 100vh;
         min-height: 100dvh;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         background: #0d0a0f;
         font-family: "Cormorant Garamond", Georgia, serif;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
         position: relative;
       }
+
+      /* Stars */
       .stars {
         position: fixed;
         inset: 0;
         pointer-events: none;
+        z-index: 0;
       }
       .star {
         position: absolute;
@@ -47,6 +52,7 @@
         }
       }
 
+      /* Ambient glow */
       body::before {
         content: "";
         position: fixed;
@@ -63,6 +69,7 @@
         transform: translate(-50%, -50%);
         pointer-events: none;
         animation: ambientBreath 4s ease-in-out infinite;
+        z-index: 0;
       }
       @keyframes ambientBreath {
         0%,
@@ -76,6 +83,33 @@
         }
       }
 
+      /* Floating petals */
+      .petal {
+        position: fixed;
+        pointer-events: none;
+        opacity: 0;
+        color: #e8304e;
+        font-size: clamp(8px, 2vw, 12px);
+        animation: petalDrift linear infinite;
+        z-index: 1;
+      }
+      @keyframes petalDrift {
+        0% {
+          opacity: 0;
+          transform: translateY(-10px) rotate(0deg);
+        }
+        10% {
+          opacity: 0.7;
+        }
+        90% {
+          opacity: 0.2;
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(100vh) rotate(360deg) translateX(40px);
+        }
+      }
+
       /* Page fade overlay */
       .fade-overlay {
         position: fixed;
@@ -83,22 +117,24 @@
         background: #0d0a0f;
         opacity: 0;
         pointer-events: none;
-        z-index: 200;
-        transition: opacity 0.8s ease;
+        z-index: 300;
+        transition: opacity 0.9s ease;
       }
       .fade-overlay.active {
         opacity: 1;
         pointer-events: all;
       }
 
-      /* ── ENVELOPE ── */
+      /* ── ENVELOPE SCENE ── */
       .envelope-scene {
-        position: relative;
-        z-index: 10;
+        position: fixed;
+        inset: 0;
         display: flex;
         flex-direction: column;
+        justify-content: center;
         align-items: center;
         padding: 20px;
+        z-index: 10;
       }
       .envelope-wrap {
         position: relative;
@@ -123,7 +159,7 @@
       }
       @keyframes flapOpen {
         0% {
-          transform: rotateX(0deg);
+          transform: rotateX(0);
         }
         100% {
           transform: rotateX(-180deg);
@@ -143,6 +179,7 @@
           opacity: 1;
         }
       }
+
       .envelope-svg {
         width: 100%;
         height: auto;
@@ -186,13 +223,13 @@
       /* ── LETTER PAGE ── */
       .letter-page {
         display: none;
-        position: fixed;
-        inset: 0;
+        width: 100%;
+        min-height: 100vh;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
+        padding: 40px 16px 60px;
         z-index: 20;
-        overflow-y: auto;
-        padding: 24px 16px;
+        position: relative;
       }
       .letter-page.show {
         display: flex;
@@ -207,13 +244,21 @@
         }
       }
 
+      .letter-inner {
+        width: 100%;
+        max-width: 560px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+      }
+
+      /* Paper */
       .paper {
-        margin-top: 100px;
         background: #fdf5f7;
         border-radius: 2px;
         width: 100%;
-        max-width: 360px;
-        padding: 22px 20px 28px;
+        padding: 28px 24px 52px;
         position: relative;
         box-shadow:
           0 2px 0 #e8c0cc,
@@ -222,11 +267,7 @@
         opacity: 0;
         transform: translateY(40px) rotate(-0.5deg);
         animation: paperReveal 1s cubic-bezier(0.34, 1.1, 0.64, 1) forwards 0.2s;
-        transition:
-          opacity 0.5s ease,
-          transform 0.5s ease;
       }
-      /* Paper exit */
       .paper.dissolving {
         animation: paperDissolve 0.7s ease forwards !important;
       }
@@ -251,6 +292,7 @@
         }
       }
 
+      /* Ruled lines */
       .paper::before {
         content: "";
         position: absolute;
@@ -263,6 +305,7 @@
         border-radius: 2px;
         pointer-events: none;
       }
+      /* Margin line */
       .paper::after {
         content: "";
         position: absolute;
@@ -276,6 +319,8 @@
 
       .letter-date {
         font-size: 10px;
+        font-family:
+          "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
         letter-spacing: 0.2em;
         color: rgba(160, 60, 80, 0.55);
         text-transform: uppercase;
@@ -285,20 +330,22 @@
         animation: lineIn 0.6s ease forwards 0.5s;
       }
       .letter-salutation {
-        font-family: "Playfair Display", Georgia, serif;
+        font-family: "Times New Roman", Times, serif;
         font-style: italic;
-        font-size: 16px;
+        font-size: 17px;
         color: #7a1830;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
         opacity: 0;
         animation: lineIn 0.6s ease forwards 0.7s;
       }
       .letter-body p {
-        font-size: 11px;
-        line-height: 1.85;
+        font-size: 13px;
+        font-family:
+          "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+        line-height: 2;
         color: #3a1520;
         font-weight: 300;
-        margin-bottom: 10px;
+        margin-bottom: 0;
         opacity: 0;
       }
       .letter-body p:nth-child(1) {
@@ -325,7 +372,7 @@
       }
 
       .letter-closing {
-        margin-top: 16px;
+        margin-top: 20px;
         text-align: right;
       }
       .letter-closing .close-word {
@@ -340,10 +387,10 @@
       .letter-closing .signature {
         font-family: "Playfair Display", Georgia, serif;
         font-style: italic;
-        font-size: 20px;
+        font-size: 22px;
         color: #7a1830;
         display: block;
-        margin-top: 2px;
+        margin-top: 4px;
         opacity: 0;
         animation: signatureIn 1s ease forwards 1.9s;
       }
@@ -358,14 +405,13 @@
         }
       }
 
-      /* Wax seal — clickable, pulses gently */
+      /* Wax seal */
       .wax-seal {
         position: absolute;
         bottom: clamp(-18px, -5vw, -22px);
         left: 50%;
         transform: translateX(-50%);
         opacity: 0;
-        cursor: pointer;
         animation:
           sealIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 2.2s,
           sealPulse 2s ease-in-out 3.2s infinite;
@@ -393,7 +439,6 @@
           transform: translateX(-50%) scale(1.08);
         }
       }
-      /* Seal exit: spins away */
       .wax-seal.spinning {
         animation: sealSpin 0.5s cubic-bezier(0.4, 0, 0.6, 1) forwards !important;
       }
@@ -408,10 +453,10 @@
         }
       }
 
-      /* Tap hint for seal */
+      /* Seal tap hint */
       .seal-hint {
         position: absolute;
-        bottom: clamp(-44px, -10vw, -52px);
+        bottom: clamp(-48px, -11vw, -58px);
         left: 50%;
         transform: translateX(-50%);
         font-size: 10px;
@@ -423,33 +468,9 @@
         animation: lineIn 0.6s ease forwards 3s;
       }
 
-      .petal {
-        position: fixed;
-        pointer-events: none;
-        opacity: 0;
-        color: #e8304e;
-        font-size: clamp(8px, 2vw, 12px);
-        animation: petalDrift linear infinite;
-      }
-      @keyframes petalDrift {
-        0% {
-          opacity: 0;
-          transform: translateY(-10px) rotate(0deg);
-        }
-        10% {
-          opacity: 0.7;
-        }
-        90% {
-          opacity: 0.2;
-        }
-        100% {
-          opacity: 0;
-          transform: translateY(100vh) rotate(360deg) translateX(40px);
-        }
-      }
-
+      /* Read again */
       .read-again {
-        margin-top: clamp(32px, 8vw, 52px);
+        margin-top: 52px;
         font-size: clamp(10px, 2.8vw, 12px);
         letter-spacing: 0.35em;
         color: rgba(220, 140, 160, 0.45);
@@ -472,6 +493,7 @@
     <div class="fade-overlay" id="fadeOverlay"></div>
     <div class="stars" id="stars"></div>
 
+    <!-- Petals -->
     <div
       class="petal"
       style="left: 10%; animation-duration: 9s; animation-delay: 3s"
@@ -634,38 +656,59 @@
 
     <!-- Letter page -->
     <div class="letter-page" id="letterPage">
-      <div
-        style="
-          width: 100%;
-          max-width: 360px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        "
-      >
+      <div class="letter-inner">
         <div class="paper" id="paper">
           <p class="letter-date">this moment, always</p>
           <p class="letter-salutation">My dearest,</p>
+
           <div class="letter-body">
             <p>
-              I used to believe that some people simply pass through life beside
-              each other — like stars that share a sky but never touch. Then I
-              found you, and everything I thought I knew about distance quietly
-              dissolved.
-            </p>
-            <p>
-              I remember the exact moment. The way the world seemed to hold its
-              breath. How ordinary everything was, and then — how it wasn't. You
-              were there, and I understood, without any ceremony at all, that
-              this was the beginning of something I had no word for yet.
+              Modatigaa ee Bangaram ki Thankss, naa life loki vachinanduku. Neku telidu nenu entha
+              happy ga untano neetho matladutunnappudu, inka neetho unnapudu
+              ayithe cheppalenu… naa anandam anta entaa kaduu, gaali lo untanu 😊
+              <br /><br />
+              Nenu eppudu anukoledu manam intha daggara avutham ani. Neku
+              gurtundha mana first day? Oka godugu pattukoni nadicham… nenu
+              matladalekapoya, appudu kuda anukoledhu nuv intha important
+              avuthav ani.
+              <br /><br />
+              Neetho vellina prati place naaku chala special. Ippudu akkada ki
+              vellina prati sari nuv gurtosthav. Okkosari "Hema" ani gattiga
+              pilavalani anipisthundi… okaroju tappakunda pilustha 😄
+              <br /><br />
+              Nuv "Hari", "Harulu", "Bangaram" ani pilichinappudu naaku navvu
+              kaadhu… siggu vastundi 🙈. Enka a kalatoo ala chusinapu ithe ala chudakee babuuuu anukuntaa.
+              <br /><br />
+              Naaku chala bayam kuda… nuv na pakkana unnapudu na heart 10km
+              parigettinattu kotukuntundi ❤️
+              <br /><br />
+              Nenu nee daggara vasthe malli vellali anipinchadu… akkade
+              undipovali anipisthundi. Kani nuv tiduthav ani velipothanu 😁
+              <br /><br />
+              Hema, nuv edavaku. Eppudu strong ga undu. Manchiga tinu, paduko.
+              Emi alochinchaku. Neku emaina badha unte naatho cheppu,
+              dacheyakuu. Nenu eppudu neetho untanu… nuv "velipo Hari" ani
+              cheppe varaku.
+              <br /><br />
+              Inko okati — nuv eppudu naaku kastam kaadhu. Na kastalalo kuda nuv
+              oka happiness 😊 kabatti alanti alochanalu petukoku.
+              <br /><br />
+              Inka last ga… nee navvu chala baguntundi, adhi eppudu kolipokuu.
+              <br /><br />
+              Bangalore lo jagratha. Manchiga tinu. Nee buggalu kuda jagratha ga
+              chusuko 😄
+              <br /><br />
+              Nuv oka manchi job kottali. Naku job vachaka vastanu.
+              Appativaraku… I miss you Hema Bangaram 🫂
             </p>
           </div>
+
           <div class="letter-closing">
             <span class="close-word">forever yours</span>
             <span class="signature">— always</span>
           </div>
 
-          <!-- Wax seal — clickable -->
+          <!-- Wax seal -->
           <div
             class="wax-seal"
             id="waxSeal"
@@ -713,6 +756,7 @@
     </div>
 
     <script>
+      // Stars
       const starsEl = document.getElementById("stars");
       for (let i = 0; i < 80; i++) {
         const s = document.createElement("div");
@@ -728,6 +772,8 @@
         wrap.classList.add("opening");
         setTimeout(() => {
           document.getElementById("envScene").style.display = "none";
+          // Scroll to top before showing letter
+          window.scrollTo(0, 0);
           document.getElementById("letterPage").classList.add("show");
         }, 900);
       }
@@ -739,18 +785,13 @@
         const seal = document.getElementById("waxSeal");
         const paper = document.getElementById("paper");
         const overlay = document.getElementById("fadeOverlay");
-
         seal.onclick = null;
-        // Seal spins away
         seal.classList.add("spinning");
-        // Paper dissolves upward
         setTimeout(() => paper.classList.add("dissolving"), 200);
-        // Fade to black
         setTimeout(() => overlay.classList.add("active"), 500);
-        // Navigate
         setTimeout(() => {
           window.location.href = "message.html";
-        }, 1200);
+        }, 1300);
       }
 
       function readAgain() {
